@@ -1,0 +1,37 @@
+apply plugin: 'java'
+
+repositories {
+    jcenter()
+}
+
+configurations {
+    provided
+    compile.extendsFrom provided
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/java'
+        }
+    }
+}
+
+
+task fatJar(type: Jar) {
+    baseName = project.name
+    manifest {
+        attributes("Main-Class": "SimpleExtension")
+    }
+    from {
+        (configurations.compile - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
+
+dependencies {
+    provided files('libs/bluejext.jar')
+    compile group: 'com.puppycrawl.tools', name: 'checkstyle', version: '7.4'
+}
